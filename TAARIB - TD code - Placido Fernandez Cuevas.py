@@ -49,6 +49,22 @@ def Segmentation(img_path):
     # Dibujamos el contorno de color azul
     img[markers == -1] = [255,0,0]
 
+    # Ejecutamos un umbral Threshold para quedarnos únicamente con las zonas de la imagen que sean de color azul
+    th=cv.inRange(img,(255,0,0),(255,0,0)).astype(np.uint8)
+
+    # Se invierte la imagen para separar los bordes
+    th=cv.bitwise_not(th)
+
+    # Llamamos a connectedComponentswithStats para extraer diferente información de la imagen
+    nb_comp,output,sizes,centroids=cv.connectedComponentsWithStats(th,connectivity=4)
+
+    # Eliminamos el fondo
+    nb_comp-=1; sizes=sizes[1:,-1]; centroids=centroids[1:,:]
+
+    # Imprimimos por pantalla lo que realmente nos interesa, que en este caso es el número de centroides
+    # que tiene la imagen, al cual tenemos que quitarle uno debido a que la propia imagen también es segmentada en su totalidad
+    print(len(centroids) - 1)
+
     # Mostramos la imagen original y la imagen con el contorno dibujado
     cv.imshow("Imagen original",img_original)
     cv.imshow("Imagen watershed",img)
@@ -58,5 +74,5 @@ def Segmentation(img_path):
 
 # Para hacerlo modular, se ha encapsulado el código en una función, de esta forma podemos llamarlo cuantas veces queramos
 # definiendo únicamente el path de la imagen que queremos analizar
-img_path = "Images/A_T2_Gel1.tif"
+img_path = "Images/A_T1_Gel1.tif"
 Segmentation(img_path)
